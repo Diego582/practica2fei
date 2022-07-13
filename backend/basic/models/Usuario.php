@@ -25,13 +25,11 @@ class Usuario extends ActiveRecord implements IdentityInterface
      */
     public static function tableName()
     {
-        return 'usuario';
+        return '{{%usuario}}';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+   
+   /*  public function rules()
     {
         return [
             [['username', 'name', 'apellido', 'email'], 'required'],
@@ -44,11 +42,9 @@ class Usuario extends ActiveRecord implements IdentityInterface
             [['username'], 'unique'],
         ];
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+ */
+  
+   /*  public function attributeLabels()
     {
         return [
             'id' => 'ID',
@@ -60,7 +56,7 @@ class Usuario extends ActiveRecord implements IdentityInterface
             'password_hash' => 'Password Hash',
             'access_token' => 'Access Token',
         ];
-    }
+    } */
 
     /**
      * {@inheritdoc}

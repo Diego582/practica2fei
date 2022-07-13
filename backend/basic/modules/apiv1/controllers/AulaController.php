@@ -2,6 +2,8 @@
 
 namespace app\modules\apiv1\controllers;
 
+use app\modules\apiv1\models\Aula;
+use yii\filters\auth\HttpBearerAuth;
 use yii\rest\ActiveController;
 
 /**
@@ -9,5 +11,12 @@ use yii\rest\ActiveController;
  */
 class AulaController extends ActiveController
 {
-    public $modelClass = 'app\modules\apiv1\models\Aula';
+    public $modelClass = Aula::class;
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];
+        return $behaviors;
+    }
 }

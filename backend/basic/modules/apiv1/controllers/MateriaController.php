@@ -2,6 +2,9 @@
 
 namespace app\modules\apiv1\controllers;
 
+
+use app\modules\apiv1\models\Materia;
+use yii\filters\auth\HttpBearerAuth;
 use yii\rest\ActiveController;
 
 /**
@@ -9,5 +12,12 @@ use yii\rest\ActiveController;
  */
 class MateriaController extends ActiveController
 {
-    public $modelClass = 'app\modules\apiv1\models\Materia';
+    public $modelClass = Materia::class;
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];
+        return $behaviors;
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace app\modules\apiv1\controllers;
 
+use app\modules\apiv1\models\Carrera;
+use yii\filters\auth\HttpBearerAuth;
 use yii\rest\ActiveController;
 
 /**
@@ -9,5 +11,12 @@ use yii\rest\ActiveController;
  */
 class CarreraController extends ActiveController
 {
-    public $modelClass = 'app\modules\apiv1\models\Carrera';
+    public $modelClass = Carrera::class;
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];
+        return $behaviors;
+    }
 }

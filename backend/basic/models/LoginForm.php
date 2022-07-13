@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\modules\apiv1\resources\UsuarioResource;
 use Yii;
 use yii\base\Model;
 
@@ -17,7 +18,7 @@ class LoginForm extends Model
     public $password;
     public $rememberMe = true;
 
-    private $_user = false;
+    protected $_usuario = false;
 
 
     /**
@@ -45,10 +46,10 @@ class LoginForm extends Model
     public function validatePassword($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = $this->getUser();
+            $usuarios = $this->getUsuario();
 
-            if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+            if (!$usuarios || !$usuarios->validatePassword($this->password)) {
+                $this->addError($attribute, 'Usuario o contraseña Incorrectos.');
             }
         }
     }
@@ -60,7 +61,7 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+            return Yii::$app->user->login($this->getUsuario(), $this->rememberMe ? 3600 * 24 * 30 : 0);
         }
         return false;
     }
@@ -68,14 +69,14 @@ class LoginForm extends Model
     /**
      * Finds user by [[username]]
      *
-     * @return User|null
+     * @return Usuario|null
      */
-    public function getUser()
+    public function getUsuario()
     {
-        if ($this->_user === false) {
-            $this->_user = Usuario::findByUsername($this->username);
+        if ($this->_usuario === false) {
+            $this->_usuario = Usuario::findByUsername($this->username);
         }
 
-        return $this->_user;
+        return $this->_usuario;
     }
 }
