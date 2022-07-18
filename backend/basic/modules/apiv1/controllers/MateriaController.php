@@ -14,10 +14,10 @@ class MateriaController extends ActiveController
 {
     public $modelClass = Materia::class;
 
-    public function behaviors()
+    /* public function behaviors()
     {
         $behaviors = parent::behaviors();
         $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];
         return $behaviors;
-    }
+    } */
 }

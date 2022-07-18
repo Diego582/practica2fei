@@ -13,10 +13,10 @@ class ReservaaulaController extends ActiveController
 {
     public $modelClass = ReservaAula::class;
 
-    public function behaviors()
+   /*  public function behaviors()
     {
         $behaviors = parent::behaviors();
         $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];
         return $behaviors;
-    }
+    } */
 }

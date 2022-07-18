@@ -13,10 +13,12 @@ class CarreraController extends ActiveController
 {
     public $modelClass = Carrera::class;
 
-    public function behaviors()
+    
+
+    /* public function behaviors()
     {
         $behaviors = parent::behaviors();
         $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];
         return $behaviors;
-    }
+    } */
 }

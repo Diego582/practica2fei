@@ -36,8 +36,8 @@ class HorarioMateria extends \yii\db\ActiveRecord
             [['id_materia', 'id_reserva'], 'default', 'value' => null],
             [['id_materia', 'id_reserva'], 'integer'],
             [['fh_desde', 'fh_hasta'], 'safe'],
-            [['id_materia'], 'exist', 'skipOnError' => true, 'targetClass' => Materia::className(), 'targetAttribute' => ['id_materia' => 'id']],
-            [['id_reserva'], 'exist', 'skipOnError' => true, 'targetClass' => ReservaAula::className(), 'targetAttribute' => ['id_reserva' => 'id']],
+            [['id_materia'], 'exist', 'skipOnError' => true, 'targetClass' => Materia::class, 'targetAttribute' => ['id_materia' => 'id']],
+            [['id_reserva'], 'exist', 'skipOnError' => true, 'targetClass' => ReservaAula::class, 'targetAttribute' => ['id_reserva' => 'id']],
         ];
     }
 
@@ -62,7 +62,7 @@ class HorarioMateria extends \yii\db\ActiveRecord
      */
     public function getMateria()
     {
-        return $this->hasOne(Materia::className(), ['id' => 'id_materia']);
+        return $this->hasOne(Materia::class, ['id' => 'id_materia']);
     }
 
     /**
@@ -72,7 +72,7 @@ class HorarioMateria extends \yii\db\ActiveRecord
      */
     public function getReserva()
     {
-        return $this->hasOne(ReservaAula::className(), ['id' => 'id_reserva']);
+        return $this->hasOne(ReservaAula::class, ['id' => 'id_reserva']);
     }
 
     /**

@@ -62,7 +62,7 @@ class Aula extends \yii\db\ActiveRecord
      */
     public function getReservaAulas()
     {
-        return $this->hasMany(ReservaAula::className(), ['id_aula' => 'id']);
+        return $this->hasMany(ReservaAula::class, ['id_aula' => 'id']);
     }
 
     /**

@@ -12,9 +12,11 @@ use Yii;
  * @property string|null $fh_desde
  * @property string|null $fh_hasta
  * @property string|null $observacion
+ * @property int|null $id_usuario
  *
  * @property Aula $aula
  * @property HorarioMateria[] $horarioMaterias
+ * @property Usuario $usuario
  */
 class ReservaAula extends \yii\db\ActiveRecord
 {
@@ -33,11 +35,12 @@ class ReservaAula extends \yii\db\ActiveRecord
     {
         return [
             [['id_aula'], 'required'],
-            [['id_aula'], 'default', 'value' => null],
-            [['id_aula'], 'integer'],
+            [['id_aula', 'id_usuario'], 'default', 'value' => null],
+            [['id_aula', 'id_usuario'], 'integer'],
             [['fh_desde', 'fh_hasta'], 'safe'],
             [['observacion'], 'string'],
-            [['id_aula'], 'exist', 'skipOnError' => true, 'targetClass' => Aula::className(), 'targetAttribute' => ['id_aula' => 'id']],
+            [['id_aula'], 'exist', 'skipOnError' => true, 'targetClass' => Aula::class, 'targetAttribute' => ['id_aula' => 'id']],
+            [['id_usuario'], 'exist', 'skipOnError' => true, 'targetClass' => Usuario::class, 'targetAttribute' => ['id_usuario' => 'id']],
         ];
     }
 
@@ -52,6 +55,7 @@ class ReservaAula extends \yii\db\ActiveRecord
             'fh_desde' => 'Fh Desde',
             'fh_hasta' => 'Fh Hasta',
             'observacion' => 'Observacion',
+            'id_usuario' => 'Id Usuario',
         ];
     }
 
@@ -62,7 +66,7 @@ class ReservaAula extends \yii\db\ActiveRecord
      */
     public function getAula()
     {
-        return $this->hasOne(Aula::className(), ['id' => 'id_aula']);
+        return $this->hasOne(Aula::class, ['id' => 'id_aula']);
     }
 
     /**
@@ -72,7 +76,17 @@ class ReservaAula extends \yii\db\ActiveRecord
      */
     public function getHorarioMaterias()
     {
-        return $this->hasMany(HorarioMateria::className(), ['id_reserva' => 'id']);
+        return $this->hasMany(HorarioMateria::class, ['id_reserva' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Usuario]].
+     *
+     * @return \yii\db\ActiveQuery|UsuarioQuery
+     */
+    public function getUsuario()
+    {
+        return $this->hasOne(Usuario::class, ['id' => 'id_usuario']);
     }
 
     /**

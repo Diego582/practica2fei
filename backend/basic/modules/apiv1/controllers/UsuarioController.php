@@ -14,6 +14,10 @@ use yii\filters\Cors;
 class UsuarioController extends Controller
 {
     /* public $modelClass = 'app\modules\apiv1\models\Usuario'; */
+    public function behaviors()
+    {
+        return array_merge(parent::behaviors(), ['cors' => Cors::class]);
+    }
 
     public function actionLogin()
     {
@@ -42,5 +46,4 @@ class UsuarioController extends Controller
             'errors' => $model->errors
         ];
     }
-
 }
