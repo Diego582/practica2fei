@@ -8,10 +8,20 @@
       <v-btn small text fab>
         <v-icon color="white">mdi-cog-outline</v-icon>
       </v-btn>
-      <v-btn small text fab @click="logout">
+      <v-btn small text fab @click="logout" to="/">
         <v-icon color="white">mdi-exit-to-app</v-icon>
       </v-btn>
     </v-app-bar>
+    <template>
+      <div class="text-center">
+        <v-dialog v-model="dialogAlerta" hide-overlay persistent width="400">
+          <v-alert color="tertiary" dark icon="mdi-material-design">
+            Ud a realizado un cierre de Sesion , por lo cual fue direccionado al
+            Home del sistema , nos vemos !!!
+          </v-alert>
+        </v-dialog>
+      </div>
+    </template>
 
     <v-navigation-drawer app v-model="drawer" temporary color="tertiary">
       <v-list-item>
@@ -55,6 +65,7 @@
 export default {
   name: "MainBarMenu",
   data: () => ({
+    dialogAlerta: false,
     drawer: false,
     items: [
       { title: "Home", icon: "mdi-home", to: "/" },
@@ -76,9 +87,16 @@ export default {
       { title: "About", icon: "mdi-all-inclusive-box", to: "/about" },
     ],
   }),
+  watch: {
+    dialogAlerta(val) {
+      if (!val) return;
+
+      setTimeout(() => (this.dialogAlerta = false), 4000);
+    },
+  },
   methods: {
     logout() {
-      console.log("Logout...");
+      this.dialogAlerta = true;
     },
   },
 };

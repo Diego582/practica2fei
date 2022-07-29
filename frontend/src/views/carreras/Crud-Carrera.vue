@@ -35,10 +35,13 @@
                 New Item
               </v-btn>
             </template>
+
             <v-card>
-              <v-card-title>
-                <span class="text-h5">{{ formTitle }}</span>
-              </v-card-title>
+              <v-toolbar color="primary" class="text-h4" dark>
+                <v-card-title>
+                  <span class="text-h5">{{ formTitle }}</span>
+                </v-card-title>
+              </v-toolbar>
               <v-card-text>
                 <v-container>
                   <v-row>
@@ -61,37 +64,33 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error" text @click="close"> Cancelar </v-btn>
-                <v-btn color="success" text @click="save"> Guardar </v-btn>
+                <v-btn color="error" @click="close"> Cancelar </v-btn>
+                <v-btn color="success" @click="save"> Guardar </v-btn>
+                <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
           <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card>
-              <v-card-title class="text-h5"
-                >Estas seguro de ELIMINAR este item?</v-card-title
-              >
-              <v-card-actions>
+              <v-toolbar color="error" class="text-h5" dark
+                >Cuidado !!!
+              </v-toolbar>
+              <v-card-text>
+                <div class="text-h6 pa-12">
+                  Estas seguro de ELIMINAR este item?
+                </div>
+              </v-card-text>
+              <v-card-actions class="justify-end">
                 <v-spacer></v-spacer>
-                <v-btn color="error" text @click="closeDelete">Cancel</v-btn>
-                <v-btn color="success" text @click="deleteItemConfirm()"
-                  >OK</v-btn
-                >
+                <v-btn color="error" @click="closeDelete">NO</v-btn>
+                <v-btn color="success" @click="deleteItemConfirm()">SI</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
+
           <template>
             <div class="text-center">
-              <v-btn
-                :disabled="dialogAlerta"
-                :loading="dialogAlerta"
-                class="white--text"
-                color="purple darken-2"
-                @click="dialogAlerta = true"
-              >
-                Start loading
-              </v-btn>
               <v-dialog
                 v-model="dialogAlerta"
                 hide-overlay
@@ -99,7 +98,21 @@
                 width="400"
               >
                 <v-alert dense type="success">
-                  Los datos se Cargaron correctamente !!!
+                  Orden procesada Corresctamente!!!
+                </v-alert>
+              </v-dialog>
+            </div>
+          </template>
+          <template>
+            <div class="text-center">
+              <v-dialog
+                v-model="dialogError"
+                hide-overlay
+                persistent
+                width="400"
+              >
+                <v-alert dense type="error"
+                  >Advertencia <span>{{ errors }}</span>
                 </v-alert>
               </v-dialog>
             </div>
@@ -107,12 +120,22 @@
         </v-toolbar>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon color="primary" small class="mr-2" @click="editItem(item)">
-          mdi-pencil
-        </v-icon>
-        <v-icon color="error" small class="mr-2" @click="deleteItem(item)">
-          mdi-delete
-        </v-icon>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn v-bind="attrs" v-on="on" text @click="editItem(item)">
+              <v-icon small color="primary" dark> mdi-pencil</v-icon>
+            </v-btn>
+          </template>
+          <span>Editar</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn v-bind="attrs" v-on="on" text @click="deleteItem(item)">
+              <v-icon small color="error" dark> mdi-delete</v-icon>
+            </v-btn>
+          </template>
+          <span>Eliminar</span>
+        </v-tooltip>
       </template>
     </v-data-table>
   </v-container>
@@ -130,6 +153,7 @@ export default {
       dialog: false,
       dialogDelete: false,
       dialogAlerta: false,
+      dialogError: false,
       search: "",
       headers: [
         { text: "ID", value: "id" },
@@ -168,6 +192,11 @@ export default {
 
       setTimeout(() => (this.dialogAlerta = false), 1500);
     },
+    dialogError(val) {
+      if (!val) return;
+
+      setTimeout(() => (this.dialogError = false), 2000);
+    },
   },
 
   created() {
@@ -189,6 +218,10 @@ export default {
     deleteItemConfirm() {
       this.carreras.splice(this.editedIndex, 1);
       this.axiosDelete(this.editedItem);
+      console.log("error", this.errors);
+      if (this.errors != true) {
+        this.dialogAlerta = true;
+      }
       this.closeDelete();
     },
 
@@ -224,12 +257,14 @@ export default {
         })
         .catch((e) => {
           this.errors = e;
+          this.dialogError = true;
           // Capturamos los errores
         });
     },
     async axiosDelete(item) {
       await this.axios.delete("apiv1/carrera/" + item.id).catch((e) => {
         this.errors = e;
+        this.dialogError = true;
         // Capturamos los errores
       });
     },
@@ -241,18 +276,24 @@ export default {
           this.carreras.push(this.editedItem);
           this.editItem.id = "";
           this.editItem.nombre = "";
+          this.dialogAlerta = true;
         })
         .catch((e) => {
           this.errors = e;
-          // Capturamos los errores
+          this.dialogError = true;
         });
     },
     async axiosUpdate() {
       await this.axios
         .put("apiv1/carrera/" + this.editedItem.id, this.editedItem)
+        .then((response) => {
+          if (response != null) {
+            this.dialogAlerta = true;
+          }
+        })
         .catch((e) => {
           this.errors = e;
-          // Capturamos los errores
+          this.dialogError = true;
         });
     },
   },
