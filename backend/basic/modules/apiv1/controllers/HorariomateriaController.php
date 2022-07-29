@@ -10,7 +10,7 @@ use yii\rest\ActiveController;
 /**
  * Default controller for the `apiv1` module
  */
-class HorariomateriaController extends ActiveController
+class HorariomateriaController extends BaseController
 {
     public $modelClass = HorarioMateria::class;
 

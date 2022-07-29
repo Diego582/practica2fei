@@ -21,7 +21,7 @@ export default new Vuetify({
         error: "#FB795A",
         info: "#FAA41B",
         success: "#12E39A",
-        warning: "#C70B02",
+        warning: "#E4F20F",
         purple: "#0FFA66",
       },
     },

@@ -9,9 +9,9 @@ use yii\rest\ActiveController;
 /**
  * Default controller for the `apiv1` module
  */
-class ProfesorController extends ActiveController
+class ProfesorController extends BaseController
 {
-    public $modelClass = Profesor::class;
+  public $modelClass = Profesor::class;
 
   /*   public function behaviors()
     {

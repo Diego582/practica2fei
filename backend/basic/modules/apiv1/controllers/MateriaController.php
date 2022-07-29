@@ -10,7 +10,7 @@ use yii\rest\ActiveController;
 /**
  * Default controller for the `apiv1` module
  */
-class MateriaController extends ActiveController
+class MateriaController extends BaseController
 {
     public $modelClass = Materia::class;
 

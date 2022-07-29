@@ -9,11 +9,11 @@ use yii\rest\ActiveController;
 /**
  * Default controller for the `apiv1` module
  */
-class ReservaaulaController extends ActiveController
+class ReservaaulaController extends BaseController
 {
     public $modelClass = ReservaAula::class;
 
-   /*  public function behaviors()
+    /*  public function behaviors()
     {
         $behaviors = parent::behaviors();
         $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];

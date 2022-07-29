@@ -9,7 +9,7 @@ use yii\rest\ActiveController;
 /**
  * Default controller for the `apiv1` module
  */
-class AulaController extends ActiveController
+class AulaController extends BaseController
 {
     public $modelClass = Aula::class;
 

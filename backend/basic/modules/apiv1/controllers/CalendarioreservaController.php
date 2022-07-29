@@ -2,20 +2,18 @@
 
 namespace app\modules\apiv1\controllers;
 
-use app\modules\apiv1\models\Carrera;
+use app\modules\apiv1\models\CalendarioReserva;
 use yii\filters\auth\HttpBearerAuth;
 use yii\rest\ActiveController;
 
 /**
  * Default controller for the `apiv1` module
  */
-class CarreraController extends BaseController
+class CalendarioreservaController extends BaseController
 {
-  public $modelClass = Carrera::class;
+    public $modelClass = CalendarioReserva::class;
 
-
-
-  /*   public function behaviors()
+    /*  public function behaviors()
     {
         $behaviors = parent::behaviors();
         $behaviors['authenticator']['authMethods'] = [HttpBearerAuth::class];

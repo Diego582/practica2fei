@@ -8,6 +8,8 @@ const authService = {
         "http://localhost:8000/apiv1/usuario/login",
         formData
       );
+      console.log("Status", status);
+      console.log("data", data);
       if (status === 200) {
         this.setUser(data);
         return { success: true };
@@ -15,16 +17,19 @@ const authService = {
     } catch (e) {
       return {
         success: false,
-        /* errors: e.response.data.errors, */
+        errors: e,
       };
     }
   },
   setUser(usuario) {
     this.usuario = usuario;
-    localStorage.setItem("ACCESS_TOKEN".usuario.access_token);
+    localStorage.setItem("ACCESS_TOKEN", usuario.access_token);
   },
   isLoggedIn() {
     return !!localStorage.getItem("ACCESS_TOKEN");
+  },
+  getToken() {
+    return localStorage.getItem("ACCESS_TOKEN");
   },
 };
 

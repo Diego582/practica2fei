@@ -2,11 +2,19 @@
   <v-container fluid grid-list-lg text-lg-left>
     <v-data-table
       :headers="headers"
-      :items="desserts"
-      sort-by="materias"
+      :items="materias"
+      sort-by="materia"
       class="elevation-1"
       :search="search"
     >
+      <template v-slot:no-data>
+        <v-alert :value="true" color="warning" icon="warning">
+          <span
+            ><v-icon large>mdi-emoticon-confused-outline</v-icon>Lamentamos
+            informar que no tienes Datos Cargados
+          </span>
+        </v-alert>
+      </template>
       <template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>Materias</v-toolbar-title>
@@ -30,9 +38,7 @@
               <v-card-title>
                 <span class="text-h5">{{ formTitle }}</span>
               </v-card-title>
-              <v-card-title>
-                <span class="text-h5">{{ formTitle }}</span>
-              </v-card-title>
+
               <v-card-text>
                 <v-container>
                   <v-row>
@@ -93,22 +99,24 @@
         </v-toolbar>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+        <v-icon color="primary" small class="mr-2" @click="editItem(item)">
+          mdi-pencil
+        </v-icon>
+        <v-icon color="error" small class="mr-2" @click="deleteItem(item)">
+          mdi-delete
+        </v-icon>
       </template>
     </v-data-table>
   </v-container>
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "CrudProfesor",
 
   data() {
     return {
-      materias: "",
+      materia: "",
       url: "",
       errors: "",
       dialog: false,
@@ -123,7 +131,7 @@ export default {
         { text: "Profesor", value: "id_profesor" },
         { text: "Actions", value: "actions", sortable: false },
       ],
-      desserts: [],
+      materias: [],
       editedIndex: -1,
       editedItem: {
         id: "",
@@ -142,40 +150,9 @@ export default {
     };
   },
   mounted() {
-    let url = "http://127.0.0.1:8000/apiv1/materia";
-
-    axios
-      .get(url)
-      .then((response) => {
-        this.desserts = response.data;
-        //solicitamos los datos a la api
-      })
-      .catch((e) => {
-        this.errors = e;
-        // Capturamos los errores
-      });
-
-    axios
-      .get("http://127.0.0.1:8000/apiv1/carrera")
-      .then((response) => {
-        this.carreras = response.data;
-        //solicitamos los datos a la api
-      })
-      .catch((e) => {
-        this.errors = e;
-        // Capturamos los errores
-      });
-
-    axios
-      .get("http://127.0.0.1:8000/apiv1/profesor")
-      .then((response) => {
-        this.profesores = response.data;
-        //solicitamos los datos a la api
-      })
-      .catch((e) => {
-        this.errors = e;
-        // Capturamos los errores
-      });
+    this.listarMaterias();
+    this.listarCarreras();
+    this.listarProfesores();
   },
   computed: {
     formTitle() {
@@ -198,21 +175,20 @@ export default {
   methods: {
     initialize() {},
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.materias.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.materias.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
-      axios.delete("http://127.0.0.1:8000/apiv1/materia/" + item.id);
     },
     deleteItemConfirm() {
-      this.desserts.splice(this.editedIndex, 1);
+      this.materias.splice(this.editedIndex, 1);
+      this.axiosDelete(this.editedItem);
       this.closeDelete();
     },
-
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -228,23 +204,75 @@ export default {
       });
     },
     save() {
-      let url = "http://127.0.0.1:8000/apiv1/materia";
       if (this.editedIndex > -1) {
-        axios.put(url + "/" + this.editedItem.id, this.editedItem);
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
+        this.axiosUpdate();
+        Object.assign(this.materias[this.editedIndex], this.editedItem);
       } else {
-        axios
-          .post(url, this.editedItem)
-          .then((response) => {
-            this.editedItem = response.data;
-            this.desserts.push(this.editedItem);
-          })
-          .catch((e) => {
-            this.errors = e;
-            // Capturamos los errores
-          });
+        this.axiosCreate();
       }
       this.close();
+    },
+    async listarMaterias() {
+      await this.axios
+        .get("apiv1/materia")
+        .then((response) => {
+          this.materias = response.data;
+          //solicitamos los datos a la api
+        })
+        .catch((e) => {
+          this.errors = e;
+          // Capturamos los errores
+        });
+    },
+    async listarProfesores() {
+      await this.axios
+        .get("apiv1/profesor")
+        .then((response) => {
+          this.profesores = response.data;
+          //solicitamos los datos a la api
+        })
+        .catch((e) => {
+          this.errors = e;
+          // Capturamos los errores
+        });
+    },
+    async listarCarreras() {
+      await this.axios
+        .get("apiv1/carrera")
+        .then((response) => {
+          this.carreras = response.data;
+          //solicitamos los datos a la api
+        })
+        .catch((e) => {
+          this.errors = e;
+          // Capturamos los errores
+        });
+    },
+    async axiosDelete(item) {
+      await this.axios.delete("apiv1/materia/" + item.id).catch((e) => {
+        this.errors = e;
+        // Capturamos los errores
+      });
+    },
+    async axiosCreate() {
+      await this.axios
+        .post("apiv1/materia", this.editedItem)
+        .then((response) => {
+          this.editedItem = response.data;
+          this.materias.push(this.editedItem);
+        })
+        .catch((e) => {
+          this.errors = e;
+          // Capturamos los errores
+        });
+    },
+    async axiosUpdate() {
+      await this.axios
+        .put("apiv1/materia/" + this.editedItem.id, this.editedItem)
+        .catch((e) => {
+          this.errors = e;
+          // Capturamos los errores
+        });
     },
   },
 };

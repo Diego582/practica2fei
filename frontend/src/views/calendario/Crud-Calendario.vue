@@ -2,22 +2,14 @@
   <v-container fluid grid-list-lg text-lg-left>
     <v-data-table
       :headers="headers"
-      :items="aulas"
-      sort-by="aula"
+      :items="calendarios"
+      sort-by="calendario"
       class="elevation-1"
       :search="search"
     >
-      <template v-slot:no-data>
-        <v-alert :value="true" color="warning" icon="warning">
-          <span
-            ><v-icon large>mdi-emoticon-confused-outline</v-icon>Lamentamos
-            informar que no tienes Datos Cargados
-          </span>
-        </v-alert>
-      </template>
       <template v-slot:top>
         <v-toolbar flat>
-          <v-toolbar-title>Aulas</v-toolbar-title>
+          <v-toolbar-title>Aprobacion y Carga Calendario </v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-text-field
             v-model="search"
@@ -42,29 +34,30 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="8" md="6">
+                      <v-select
+                        v-model="editedItemCompartido.id"
+                        label="Reservas de Aulas"
+                        :items="reservas"
+                        :hint="`${editedItemCompartido.id.id}, ${editedItemCompartido.id.observacion}`"
+                        item-text="observacion"
+                        item-value="id"
+                        single-line
+                      ></v-select>
                       <v-text-field
-                        v-model="editedItem.descripcion"
-                        label="Descripcion"
+                        v-model="editedItem.start"
+                        label="Desde"
+                        type="datetime-local"
                       ></v-text-field>
                       <v-text-field
-                        v-model="editedItem.ubicacion"
-                        label="Ubicacion"
+                        v-model="editedItem.end"
+                        label="Hasta"
+                        type="datetime-local"
                       ></v-text-field>
                       <v-text-field
-                        v-model="editedItem.cant_proyector"
-                        label="Cantidad Proyector"
-                        type="number"
+                        v-model="editedItem.color"
+                        label="Color"
+                        type="color"
                       ></v-text-field>
-                      <v-text-field
-                        v-model="editedItem.aforo"
-                        label="Aforo"
-                      ></v-text-field>
-                      <v-switch
-                        v-model="editedItem.es_climatizada"
-                        :input-value="editedItem.es_climatizada"
-                        @change="(value) => changeState(value)"
-                        :label="`Es climatizada `"
-                      ></v-switch>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -95,57 +88,67 @@
         </v-toolbar>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon color="primary" small class="mr-2" @click="editItem(item)">
-          mdi-pencil
-        </v-icon>
-        <v-icon color="error" small class="mr-2" @click="deleteItem(item)">
-          mdi-delete
-        </v-icon>
+        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
+        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
       </template>
     </v-data-table>
+    <CalendarioReserva></CalendarioReserva>
   </v-container>
 </template>
 
 <script>
-export default {
-  name: "CrudCarrera",
+import axios from "axios";
+import CalendarioReserva from "@/components/CalendarioReserva.vue";
 
+export default {
+  name: "CrudCalendario",
   data() {
     return {
-      aula: "",
+      calendario: "",
       url: "",
       errors: "",
       dialog: false,
       dialogDelete: false,
       search: "",
+      profesores: "",
       headers: [
-        { text: "Descripcion", value: "descripcion" },
-        { text: "Ubicacion", value: "ubicacion" },
-        { text: "Proyectores", value: "cant_proyector" },
-        { text: "Aforo", value: "aforo" },
-        { text: "Climatizada", value: "es_climatizada" },
+        { text: "Nro de Reserva", value: "id" },
+        { text: "Descripcion", value: "name" },
+        { text: "Fecha Desde", value: "start" },
+        { text: "Fecha Hasta", value: "end" },
+        { text: "Color", value: "color" },
+        { text: "Detalle", value: "details" },
         { text: "Actions", value: "actions", sortable: false },
       ],
-      aulas: [],
+      calendarios: [],
+      reservas: [],
       editedIndex: -1,
       editedItem: {
-        descripcion: "",
-        ubicacion: "",
-        cant_proyector: "",
-        aforo: "",
-        es_climatizada: "",
+        id: "",
+        name: "",
+        start: "",
+        end: "",
+        color: "",
       },
       defaultItem: {
-        descripcion: "",
-        ubicacion: "",
-        cant_proyector: "",
-        aforo: "",
-        es_climatizada: "",
+        id: "",
+        name: "",
+        start: "",
+        end: "",
+        color: "",
       },
+      editedItemCompartido: {
+        id: "",
+        id_calendario: "",
+        id_reserva: "",
+        details: "",
+      },
+      inicio: "",
+      currentlyEditing: null,
     };
   },
   mounted() {
-    this.listarAulas();
+    this.listarCalendarios();
   },
   computed: {
     formTitle() {
@@ -160,29 +163,26 @@ export default {
       val || this.closeDelete();
     },
   },
-
   created() {
     this.initialize();
   },
-
   methods: {
     initialize() {},
     editItem(item) {
-      this.editedIndex = this.aulas.indexOf(item);
+      this.editedIndex = this.calendarios.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem(item) {
-      this.editedIndex = this.aulas.indexOf(item);
+      this.editedIndex = this.calendarios.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
+      this.axiosDelete(item);
     },
     deleteItemConfirm() {
-      this.aulas.splice(this.editedIndex, 1);
-      this.axiosDelete(this.editedItem);
+      this.calendarios.splice(this.editedIndex, 1);
       this.closeDelete();
     },
-
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -198,23 +198,29 @@ export default {
       });
     },
     save() {
+      let url = "http://127.0.0.1:8000/apiv1/calendario";
       if (this.editedIndex > -1) {
-        this.axiosUpdate();
-        Object.assign(this.aulas[this.editedIndex], this.editedItem);
+        axios.put(url + "/" + this.editedItem.id, this.editedItem);
+        Object.assign(this.calendarios[this.editedIndex], this.editedItem);
       } else {
-        this.axiosCreate();
+        axios
+          .post(url, this.editedItem)
+          .then((response) => {
+            this.editedItem = response.data;
+            this.calendarios.push(this.editedItem);
+          })
+          .catch((e) => {
+            this.errors = e;
+            // Capturamos los errores
+          });
       }
       this.close();
     },
-    // funcion para el swicth
-    changeState(valor) {
-      this.editedItem.es_climatizada = valor;
-    },
-    async listarAulas() {
+    async listarCalendarios() {
       await this.axios
-        .get("apiv1/aula")
+        .get("apiv1/calendario")
         .then((response) => {
-          this.aulas = response.data;
+          this.calendarios = response.data;
           //solicitamos los datos a la api
         })
         .catch((e) => {
@@ -223,31 +229,34 @@ export default {
         });
     },
     async axiosDelete(item) {
-      await this.axios.delete("apiv1/aula/" + item.id).catch((e) => {
+      await this.axios.delete("apiv1/calendario/" + item.id).catch((e) => {
         this.errors = e;
         // Capturamos los errores
       });
     },
-    async axiosCreate() {
-      await this.axios
-        .post("apiv1/aula", this.editedItem)
-        .then((response) => {
-          this.editedItem = response.data;
-          this.aulas.push(this.editedItem);
-        })
-        .catch((e) => {
-          this.errors = e;
-          // Capturamos los errores
+    crearCalendario() {
+      /*  console.log("ingreso calendario al crear", this.calendarios);
+      const name = "prueba1";
+      const start = this.calendarios.start;
+      const end = this.calendarios.end;
+      const color = this.calendarios.color;
+      const contador = 4;
+
+      for (let i = 0; i < contador; i++) {
+        this.editedItem.name = name;
+        this.editedItem.start = start;
+        this.editedItem.end = end;
+        this.editedItem.color = color;
+        console.log("despues del for", this.editedItem);
+        this.calendarios.push({
+          name: name,
+          start: start,
+          end: end,
+          color: color,
         });
-    },
-    async axiosUpdate() {
-      await this.axios
-        .put("apiv1/aula/" + this.editedItem.id, this.editedItem)
-        .catch((e) => {
-          this.errors = e;
-          // Capturamos los errores
-        });
+      } */
     },
   },
+  components: { CalendarioReserva },
 };
 </script>
